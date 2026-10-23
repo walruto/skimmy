@@ -49,7 +49,7 @@ import kotlinx.coroutines.launch
 fun LoginScreen(onLoggedIn: () -> Unit, onGoSignUp: () -> Unit) {
     AuthShell(
         headline = "LOG IN",
-        subtitle = "Access your SkimGuard scanner.",
+        subtitle = "Access your Skimmy scanner.",
         primaryLabel = "LOG IN",
         switchPrompt = "New here?",
         switchLabel = "SIGN UP",
@@ -63,7 +63,7 @@ fun LoginScreen(onLoggedIn: () -> Unit, onGoSignUp: () -> Unit) {
 fun SignUpScreen(onSignedUp: () -> Unit, onGoLogin: () -> Unit) {
     AuthShell(
         headline = "SIGN UP",
-        subtitle = "Create your SkimGuard account.",
+        subtitle = "Create your Skimmy account.",
         primaryLabel = "SIGN UP",
         switchPrompt = "Already have an account?",
         switchLabel = "LOG IN",

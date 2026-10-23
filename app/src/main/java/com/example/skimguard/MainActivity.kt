@@ -260,7 +260,7 @@ fun SplashScreen(onContinue: () -> Unit) {
             }
             Spacer(Modifier.height(16.dp))
             Text(
-                text = "SKIMGUARD  V2.4.0  ©  2026",
+                text = "SKIMMY  V2.4.0  ©  2026",
                 style = TextStyle(
                     fontFamily = FontFamily.SansSerif,
                     fontSize = 10.sp,
@@ -554,7 +554,7 @@ private fun HeaderBar(onLogOut: () -> Unit) {
         )
         Spacer(Modifier.width(10.dp))
         Text(
-            text = "SKIMGUARD",
+            text = "SKIMMY",
             style = TextStyle(
                 fontFamily = FontFamily.SansSerif,
                 fontWeight = FontWeight.Bold,

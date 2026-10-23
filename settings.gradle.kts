@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SkimGuard"
+rootProject.name = "Skimmy"
 include(":app")
  
