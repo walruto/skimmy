@@ -2,7 +2,7 @@ package com.example.skimguard.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Obsidian Mono palette — true-black canvas, white primary, functional red/green only.
+// I kept the app almost completely black and white, then used color only for safe or dangerous results.
 val ObsidianBlack = Color(0xFF000000)
 val ObsidianSurface = Color(0xFF0E0E0E)
 val ObsidianSurfaceHigh = Color(0xFF1F1F1F)

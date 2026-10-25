@@ -271,9 +271,8 @@ fun SkimGuardScreen() {
     var logLines by remember { mutableStateOf(emptyList<LogEntry>()) }
     var isScanning by remember { mutableStateOf(false) }
     var screen by remember { mutableStateOf<Screen>(Screen.Scanner) }
-    // Dedup key = lowercased name if usable, else MAC. Cleared per scan session in beginScan().
-    // This absorbs BLE MAC rotation: the same "HC-05" advertising with a new random MAC
-    // is still deduped by its stable name.
+    // I use the name when I can because BLE devices can change their MAC address.
+    // This gets cleared before every scan so old devices do not carry over.
     val seenKeys = remember { mutableSetOf<String>() }
 
     val scanCallback = remember {
@@ -379,8 +378,7 @@ fun SkimGuardScreen() {
             if (isScanning) {
                 stopScan()
                 addSystem("Scan complete.")
-                // Reached the full 12s without a suspect detection (which would have
-                // flipped isScanning false and cancelled this coroutine before delay).
+                // If the scan makes it through all 12 seconds, nothing suspicious stopped it.
                 screen = Screen.NoThreats
             }
         }
@@ -551,7 +549,7 @@ private fun RadarTarget(
             val cx = size.width / 2f
             val cy = size.height / 2f
             val maxR = size.minDimension / 2f
-            // Static concentric rings
+            // These rings stay still while the outer ring moves through them.
             listOf(0.42f, 0.62f, 0.85f).forEach { fraction ->
                 drawCircle(
                     color = ringColor.copy(alpha = 0.18f),
@@ -570,7 +568,7 @@ private fun RadarTarget(
                     style = Stroke(width = 2.dp.toPx()),
                 )
             }
-            // Center filled disc
+            // I kept the center filled so it is easy to see against the black background.
             drawCircle(
                 color = ringColor.copy(alpha = 0.10f),
                 radius = maxR * 0.30f,
@@ -877,7 +875,7 @@ private fun ResultShell(
                             style = Stroke(width = 1.4.dp.toPx()),
                         )
                     }
-                    // Pulsing ring: expands outward, fades to transparent.
+                    // I fade the ring while it moves outward.
                     val pulseR = maxR * (0.35f + pulse * 0.55f)
                     val pulseAlpha = (1f - pulse) * 0.55f
                     drawCircle(
@@ -886,7 +884,7 @@ private fun ResultShell(
                         center = Offset(cx, cy),
                         style = Stroke(width = 1.8.dp.toPx()),
                     )
-                    // Center disc + subtle scale pulse on its alpha for extra life.
+                    // The center changes opacity with the ring so the animation does not feel frozen.
                     drawCircle(
                         color = accent.copy(alpha = 0.12f + (1f - pulse) * 0.08f),
                         radius = maxR * 0.32f,
