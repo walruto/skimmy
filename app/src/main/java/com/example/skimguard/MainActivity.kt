@@ -57,7 +57,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -83,11 +82,7 @@ import com.example.skimguard.ui.theme.ObsidianOutline
 import com.example.skimguard.ui.theme.ObsidianSuccess
 import com.example.skimguard.ui.theme.ObsidianWhite
 import com.example.skimguard.ui.theme.SkimGuardTheme
-import io.github.jan.supabase.gotrue.auth
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-
-private enum class Gate { Splash, Loading, Login, SignUp, App }
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,49 +91,16 @@ class MainActivity : ComponentActivity() {
         setContent {
             SkimGuardTheme {
                 var showSplash by remember { mutableStateOf(true) }
-                // null = still checking stored session; true/false once resolved.
-                var loggedIn by remember { mutableStateOf<Boolean?>(null) }
-                var showSignUp by remember { mutableStateOf(false) }
-                val scope = rememberCoroutineScope()
-
-                LaunchedEffect(Unit) {
-                    supabase.auth.awaitInitialization()
-                    loggedIn = supabase.auth.currentSessionOrNull() != null
-                }
-
-                val gate: Gate = when {
-                    showSplash -> Gate.Splash
-                    loggedIn == null -> Gate.Loading
-                    loggedIn == true -> Gate.App
-                    showSignUp -> Gate.SignUp
-                    else -> Gate.Login
-                }
 
                 Crossfade(
-                    targetState = gate,
+                    targetState = showSplash,
                     animationSpec = tween(400),
                     label = "gate-crossfade",
-                ) { current ->
-                    when (current) {
-                        Gate.Splash -> SplashScreen(onContinue = { showSplash = false })
-                        Gate.Loading -> AuthLoadingScreen()
-                        Gate.Login -> LoginScreen(
-                            onLoggedIn = { loggedIn = true },
-                            onGoSignUp = { showSignUp = true },
-                        )
-                        Gate.SignUp -> SignUpScreen(
-                            onSignedUp = { loggedIn = true },
-                            onGoLogin = { showSignUp = false },
-                        )
-                        Gate.App -> SkimGuardScreen(
-                            onLogOut = {
-                                scope.launch {
-                                    authSignOut()
-                                    showSignUp = false
-                                    loggedIn = false
-                                }
-                            },
-                        )
+                ) { splashVisible ->
+                    if (splashVisible) {
+                        SplashScreen(onContinue = { showSplash = false })
+                    } else {
+                        SkimGuardScreen()
                     }
                 }
             }
@@ -300,7 +262,7 @@ private sealed class Screen {
 }
 
 @Composable
-fun SkimGuardScreen(onLogOut: () -> Unit) {
+fun SkimGuardScreen() {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val bluetoothAdapter: BluetoothAdapter? =
@@ -467,7 +429,7 @@ fun SkimGuardScreen(onLogOut: () -> Unit) {
                         .padding(padding)
                         .padding(horizontal = 24.dp),
                 ) {
-                    HeaderBar(onLogOut = onLogOut)
+                    HeaderBar()
                     Spacer(Modifier.height(8.dp))
                     RadarTarget(
                         isScanning = isScanning,
@@ -540,7 +502,7 @@ fun SkimGuardScreen(onLogOut: () -> Unit) {
 }
 
 @Composable
-private fun HeaderBar(onLogOut: () -> Unit) {
+private fun HeaderBar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -563,19 +525,6 @@ private fun HeaderBar(onLogOut: () -> Unit) {
                 color = ObsidianWhite,
             ),
             modifier = Modifier.weight(1f),
-        )
-        Text(
-            text = "LOG OUT",
-            style = TextStyle(
-                fontFamily = FontFamily.SansSerif,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 12.sp,
-                letterSpacing = 1.5.sp,
-                color = ObsidianOnSurfaceMuted,
-            ),
-            modifier = Modifier
-                .clickable(onClick = onLogOut)
-                .padding(8.dp),
         )
     }
 }
